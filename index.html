@@ -4,11 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Movere Conseil | Penser, structurer, s'installer</title>
-    <!-- Chargement de Tailwind CSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Polices Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&family=Outfit:wght@400;600&display=swap" rel="stylesheet">
-    <!-- Icônes Lucide -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root {
@@ -56,25 +53,58 @@
             max-height: 80vh;
             overflow-y: auto;
         }
-        
-        /* Animations du Globe */
-        @keyframes rotate-globe {
+
+        /* --- NAVIGATION --- */
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+        }
+
+        /* --- ANIMATIONS GLOBE --- */
+        @keyframes rotate-map {
             from { transform: translateX(0); }
             to { transform: translateX(-50%); }
         }
-        @keyframes orbit-forward {
+        @keyframes orbit-plane {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
         }
-        
-        /* Conteneur pour le défilement de la carte */
-        .map-scroll {
-            display: flex;
-            animation: rotate-globe 45s linear infinite;
-        }
 
-        .animate-orbit {
-            animation: orbit-forward 18s linear infinite;
+        .globe-sphere {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            overflow: hidden;
+            background: #140e0a; 
+            z-index: 1;
+            box-shadow: inset -30px -30px 60px rgba(0,0,0,0.9), 
+                        inset 10px 10px 40px rgba(255,255,255,0.05),
+                        0 0 50px rgba(166, 125, 93, 0.15);
+        }
+        .globe-map-wrapper {
+            display: flex;
+            width: 200%;
+            height: 100%;
+            animation: rotate-map 40s linear infinite;
+            opacity: 0.85;
+        }
+        .world-map-svg {
+            width: 50%;
+            height: 100%;
+            flex-shrink: 0;
+        }
+        .globe-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.1) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 2;
+        }
+        .animate-plane {
+            animation: orbit-plane 18s linear infinite;
         }
 
         .team-photo-container {
@@ -87,10 +117,37 @@
         .team-photo-container:hover {
             transform: translateY(-5px);
         }
-        .logo-img {
-            height: 50px;
-            width: auto;
-            object-fit: contain;
+        .logo-img { height: 50px; width: auto; object-fit: contain; }
+        
+        .contact-input, .ai-input {
+            background-color: white;
+            border: 1px solid var(--beige-dark);
+            padding: 12px 16px;
+            border-radius: 12px;
+            width: 100%;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+        .contact-input:focus, .ai-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(166, 125, 93, 0.1);
+        }
+
+        .article-card {
+            border-left: 4px solid var(--accent);
+            padding-left: 1.5rem;
+        }
+
+        /* --- ÉTATS IA --- */
+        .loading-dots:after {
+            content: '.';
+            animation: dots 1.5s steps(5, end) infinite;
+        }
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60% { content: '...'; }
+            80%, 100% { content: ''; }
         }
     </style>
 </head>
@@ -99,7 +156,7 @@
     <!-- Navigation -->
     <nav class="fixed w-full z-50 bg-white/95 backdrop-blur-md border-b border-[#E2D1C3]/40">
         <div class="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-4 cursor-pointer" onclick="navigateTo('home')">
                 <img src="https://i.postimg.cc/2y41bVdJ/Whats-App-Image-2026-01-03-at-16-09-30.jpg" alt="Logo Movere Conseil" class="logo-img rounded-md">
                 <div class="flex flex-col">
                     <span class="text-xl font-bold tracking-tight text-[#2A1F18] leading-none uppercase">Movere</span>
@@ -107,362 +164,390 @@
                 </div>
             </div>
             <div class="hidden md:flex items-center gap-8 text-sm font-semibold">
-                <a href="#services" class="hover:text-[#A67D5D] transition text-[#2A1F18]">La méthode</a>
-                <a href="#parcours" class="hover:text-[#A67D5D] transition text-[#2A1F18]">Nos parcours</a>
-                <a href="#equipe" class="hover:text-[#A67D5D] transition text-[#2A1F18]">L'équipe</a>
-                <a href="#contact" class="bg-[#2A1F18] text-white px-6 py-2.5 rounded-full hover:bg-[#4A3728] transition shadow-md">Contactez-nous</a>
+                <a href="#services" onclick="navigateTo('home')" class="hover:text-[#A67D5D] transition text-[#2A1F18]">La méthode</a>
+                <a href="#parcours" onclick="navigateTo('home')" class="hover:text-[#A67D5D] transition text-[#2A1F18]">Nos parcours</a>
+                <a href="#fiscalite" onclick="navigateTo('home')" class="hover:text-[#A67D5D] transition text-[#2A1F18]">Expertise Fiscale</a>
+                <a href="#equipe" onclick="navigateTo('home')" class="hover:text-[#A67D5D] transition text-[#2A1F18]">L'équipe</a>
+                <a href="#contact-page" onclick="navigateTo('home')" class="bg-[#2A1F18] text-white px-6 py-2.5 rounded-full hover:bg-[#4A3728] transition shadow-md">Contact</a>
             </div>
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <section class="hero-pattern pt-48 pb-28 text-white overflow-hidden">
-        <div class="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
-            <div class="max-w-3xl">
-                <h1 class="text-5xl md:text-7xl font-bold mb-8 leading-tight text-[#F8F5F0]">
-                    Penser, structurer, <br><span class="text-[#E2D1C3] italic font-light">s'installer.</span>
-                </h1>
-                <p class="text-xl text-[#E2D1C3]/90 mb-12 font-light leading-relaxed max-w-xl">
-                    Movere Conseil accompagne chaque projet de vie internationale avec rigueur et proximité. De la réflexion stratégique à votre intégration locale.
-                </p>
-                <div class="flex flex-col sm:flex-row gap-5">
-                    <a href="#parcours" class="bg-[#A67D5D] text-white px-10 py-5 rounded-2xl font-bold text-center hover:scale-105 transition shadow-xl text-lg">Choisir mon parcours</a>
-                    <a href="#services" class="bg-white/10 border border-white/20 text-white px-10 py-5 rounded-2xl font-bold text-center hover:bg-white/20 transition text-lg">Découvrir la méthode</a>
+    <!-- PAGE ACCUEIL (FRONT) -->
+    <div id="page-home" class="page active">
+        <!-- Hero Section -->
+        <section class="hero-pattern pt-48 pb-28 text-white overflow-hidden">
+            <div class="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h1 class="text-5xl md:text-7xl font-bold mb-8 leading-tight text-[#F8F5F0]">
+                        Penser, structurer, <br><span class="text-[#E2D1C3] italic font-light">s'installer.</span>
+                    </h1>
+                    <p class="text-xl text-[#E2D1C3]/90 mb-12 font-light leading-relaxed max-w-xl">
+                        Movere Conseil accompagne chaque projet de vie internationale avec rigueur et proximité. De la réflexion stratégique à votre intégration locale.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-5">
+                        <button onclick="navigateTo('search')" class="bg-[#A67D5D] text-white px-10 py-5 rounded-2xl font-bold text-center hover:scale-105 transition shadow-xl text-lg">Démarrer la recherche</button>
+                        <a href="#services" class="bg-white/10 border border-white/20 text-white px-10 py-5 rounded-2xl font-bold text-center hover:bg-white/20 transition text-lg text-center">Découvrir la méthode</a>
+                    </div>
                 </div>
-            </div>
-            
-            <!-- Nouveau Globe Terrestre Enrichi avec Avion Diagonale -->
-            <div class="hidden md:flex justify-center items-center relative h-[450px]">
-                <div class="absolute w-[450px] h-[450px] bg-[#A67D5D]/5 rounded-full blur-[120px]"></div>
                 
-                <div class="relative w-[340px] h-[340px]">
-                    <!-- Sphère du Globe -->
-                    <div class="absolute inset-0 rounded-full border border-[#E2D1C3]/30 overflow-hidden bg-[#2A1F18]/90 shadow-[inset_0_0_80px_rgba(166,125,93,0.4)]">
-                        <!-- Mappemonde Très Détaillée qui défile -->
-                        <div class="map-scroll h-full flex items-center opacity-70">
-                            <!-- Bloc Carte 1 -->
-                            <svg viewBox="0 0 1200 300" class="h-[95%] flex-shrink-0">
-                                <!-- Amériques -->
-                                <path fill="#E2D1C3" d="M50,40 Q30,60 50,100 T70,160 T90,220 T110,260 T130,220 T110,140 T80,80 T60,30 Z" />
-                                <path fill="#E2D1C3" d="M120,120 Q100,160 120,220 T160,260 T180,200 T160,140 Z" />
-                                <!-- Europe et Afrique -->
-                                <path fill="#E2D1C3" d="M350,50 Q330,70 360,90 T400,60 T440,90 T460,140 T420,180 T380,120 Z" />
-                                <path fill="#E2D1C3" d="M360,160 Q340,200 380,250 T440,270 T480,220 T460,150 Z" />
-                                <!-- Groenland / Arctique -->
-                                <path fill="#E2D1C3" d="M180,20 Q220,10 260,30 T220,50 Z" />
-                                <!-- Eurasie -->
-                                <path fill="#E2D1C3" d="M500,40 Q550,20 650,40 T750,70 T850,120 T800,180 T700,220 T600,180 T520,100 Z" />
-                                <path fill="#E2D1C3" d="M580,100 Q620,120 650,160 T620,200 T580,180 Z" />
-                                <!-- Océanie / Îles -->
-                                <path fill="#E2D1C3" d="M900,200 Q920,230 960,220 T980,180 T940,160 Z" />
-                                <circle cx="850" cy="240" r="5" fill="#E2D1C3" />
-                                <circle cx="420" cy="45" r="4" fill="#E2D1C3" />
-                                <!-- Points de présence Movere -->
-                                <circle cx="385" cy="75" r="5" fill="#A67D5D" class="animate-pulse" />
-                                <circle cx="680" cy="110" r="3" fill="#A67D5D" />
-                                <circle cx="140" cy="180" r="3" fill="#A67D5D" />
-                            </svg>
-                            <!-- Bloc Carte 2 (répétition) -->
-                            <svg viewBox="0 0 1200 300" class="h-[95%] flex-shrink-0">
-                                <path fill="#E2D1C3" d="M50,40 Q30,60 50,100 T70,160 T90,220 T110,260 T130,220 T110,140 T80,80 T60,30 Z" />
-                                <path fill="#E2D1C3" d="M120,120 Q100,160 120,220 T160,260 T180,200 T160,140 Z" />
-                                <path fill="#E2D1C3" d="M350,50 Q330,70 360,90 T400,60 T440,90 T460,140 T420,180 T380,120 Z" />
-                                <path fill="#E2D1C3" d="M360,160 Q340,200 380,250 T440,270 T480,220 T460,150 Z" />
-                                <path fill="#E2D1C3" d="M180,20 Q220,10 260,30 T220,50 Z" />
-                                <path fill="#E2D1C3" d="M500,40 Q550,20 650,40 T750,70 T850,120 T800,180 T700,220 T600,180 T520,100 Z" />
-                                <path fill="#E2D1C3" d="M580,100 Q620,120 650,160 T620,200 T580,180 Z" />
-                                <path fill="#E2D1C3" d="M900,200 Q920,230 960,220 T980,180 T940,160 Z" />
-                                <circle cx="385" cy="75" r="5" fill="#A67D5D" />
+                <div class="hidden md:flex justify-center items-center relative h-[450px]">
+                    <div class="absolute w-[450px] h-[450px] bg-[#A67D5D]/5 rounded-full blur-[120px]"></div>
+                    <div class="globe-container">
+                        <div class="globe-sphere">
+                            <div class="globe-map-wrapper">
+                                <svg class="world-map-svg" viewBox="0 0 1000 500" preserveAspectRatio="none">
+                                    <path fill="var(--beige-dark)" opacity="0.9" d="M120,80 L140,85 L160,110 L150,150 L180,180 L170,230 L140,260 L100,240 L80,180 L90,120 Z" /> 
+                                    <path fill="var(--beige-dark)" opacity="0.9" d="M140,260 L160,300 L150,350 L120,400 L100,380 L110,320 L130,280 Z" /> 
+                                    <path fill="var(--beige-dark)" opacity="0.9" d="M400,100 L450,90 L480,110 L470,160 L430,150 L410,120 Z" /> 
+                                    <path fill="var(--beige-dark)" opacity="0.9" d="M430,160 L480,170 L520,220 L500,280 L440,320 L400,280 L410,220 Z" /> 
+                                    <path fill="var(--beige-dark)" opacity="0.9" d="M500,80 L650,70 L750,120 L800,200 L700,250 L550,220 L520,150 Z" /> 
+                                    <path fill="var(--beige-dark)" opacity="0.9" d="M800,280 L880,260 L920,300 L850,350 L810,320 Z" /> 
+                                    <circle cx="440" cy="110" r="4" fill="var(--accent)" class="animate-pulse" />
+                                    <circle cx="150" cy="140" r="3" fill="var(--accent)" />
+                                    <circle cx="700" cy="180" r="3" fill="var(--accent)" />
+                                </svg>
+                                <svg class="world-map-svg" viewBox="0 0 1000 500" preserveAspectRatio="none">
+                                    <path fill="var(--beige-dark)" opacity="0.9" d="M120,80 L140,85 L160,110 L150,150 L180,180 L170,230 L140,260 L100,240 L80,180 L90,120 Z" /> 
+                                    <circle cx="440" cy="110" r="4" fill="var(--accent)" />
+                                </svg>
+                            </div>
+                            <div class="globe-overlay"></div>
+                        </div>
+                        <div class="absolute inset-[-80px] pointer-events-none">
+                            <svg viewBox="0 0 460 460" class="w-full h-full overflow-visible">
+                                <g transform="rotate(-35 230 230)">
+                                    <g class="animate-plane origin-center">
+                                        <circle cx="230" cy="230" r="210" fill="none" stroke="var(--accent)" stroke-width="0.5" stroke-dasharray="4 15" opacity="0.2" />
+                                        <g transform="translate(230, 20)">
+                                            <g transform="rotate(90)">
+                                                <path d="M15 11V9L10 6V2.5C10 1.67 9.33 1 8.5 1S7 1.67 7 2.5V6L2 9V11L7 9.5V13.5L5.5 14.5V16L8.5 15L11.5 16V14.5L10 13.5V9.5L15 11Z" 
+                                                      fill="var(--accent)" 
+                                                      transform="scale(2) translate(-8.5,-8.5)" />
+                                            </g>
+                                            <circle cx="0" cy="0" r="3" fill="var(--accent)" class="animate-ping" opacity="0.4" />
+                                        </g>
+                                    </g>
+                                </g>
                             </svg>
                         </div>
                     </div>
+                </div>
+            </div>
+        </section>
 
-                    <!-- Méridiens & Parallèles Graphiques -->
-                    <div class="absolute inset-0 rounded-full border border-[#E2D1C3]/20 pointer-events-none shadow-[0_0_40px_rgba(42,31,24,1)]">
-                        <div class="absolute inset-0 border-l border-r border-[#E2D1C3]/10 rounded-full scale-x-[0.33]"></div>
-                        <div class="absolute inset-0 border-l border-r border-[#E2D1C3]/10 rounded-full scale-x-[0.66]"></div>
-                        <div class="absolute inset-0 border-t border-b border-[#E2D1C3]/10 rounded-full scale-y-[0.33]"></div>
-                        <div class="absolute inset-0 border-t border-b border-[#E2D1C3]/10 rounded-full scale-y-[0.66]"></div>
+        <!-- Méthode -->
+        <section id="services" class="py-24 bg-white text-center">
+            <div class="max-w-6xl mx-auto px-6 mb-20">
+                <h2 class="text-4xl font-bold mb-6 text-[#2A1F18]">Une méthode claire pour tous</h2>
+                <p class="text-[#4A3728] text-lg max-w-2xl mx-auto font-light leading-relaxed">Parce que partir à l'étranger ne devrait pas être un casse-tête réservé aux experts.</p>
+            </div>
+            <div class="max-w-6xl mx-auto px-6 grid md:grid-cols-3 gap-12 text-center">
+                <div class="group">
+                    <div class="w-20 h-20 bg-[#F8F5F0] rounded-3xl flex items-center justify-center mx-auto mb-8 group-hover:bg-[#E2D1C3] transition shadow-sm border border-[#E2D1C3]/30">
+                        <i data-lucide="search" class="text-[#2A1F18] w-10 h-10"></i>
                     </div>
-
-                    <!-- Avion en orbite diagonale COMMENÇANT DE L'AUTRE CÔTÉ (Bas) -->
-                    <div class="absolute inset-[-60px] pointer-events-none">
-                        <svg viewBox="0 0 460 460" class="w-full h-full overflow-visible">
-                            <!-- Axe orbital diagonal (-35 deg) -->
-                            <g transform="rotate(-35 230 230)">
-                                <g class="animate-orbit origin-center">
-                                    <!-- Trajectoire circulaire discrète -->
-                                    <circle cx="230" cy="230" r="215" fill="none" stroke="#A67D5D" stroke-width="0.7" stroke-dasharray="4 20" opacity="0.3" />
-                                    
-                                    <!-- L'avion positionné en BAS de l'orbite (Y=445) -->
-                                    <g transform="translate(230, 445)">
-                                        <!-- Design Avion facing direction of movement -->
-                                        <g transform="rotate(90)">
-                                            <path d="M15 11V9L10 6V2.5C10 1.67 9.33 1 8.5 1S7 1.67 7 2.5V6L2 9V11L7 9.5V13.5L5.5 14.5V16L8.5 15L11.5 16V14.5L10 13.5V9.5L15 11Z" 
-                                                  fill="#A67D5D" 
-                                                  transform="scale(2.2) translate(-8.5,-8.5)" />
-                                        </g>
-                                        <!-- Point lumineux arrière -->
-                                        <circle cx="0" cy="0" r="3" fill="#A67D5D" class="animate-ping" opacity="0.5" />
-                                    </g>
-                                </g>
-                            </g>
-                        </svg>
+                    <h3 class="text-2xl font-bold mb-4">1. Analyse du projet</h3>
+                    <p class="text-[#4A3728] leading-relaxed">Nous étudions ensemble vos besoins : budget, famille et style de vie pour sécuriser votre décision.</p>
+                </div>
+                <div class="group">
+                    <div class="w-20 h-20 bg-[#F8F5F0] rounded-3xl flex items-center justify-center mx-auto mb-8 group-hover:bg-[#E2D1C3] transition shadow-sm border border-[#E2D1C3]/30">
+                        <i data-lucide="file-check" class="text-[#2A1F18] w-10 h-10"></i>
                     </div>
+                    <h3 class="text-2xl font-bold mb-4">2. Organisation</h3>
+                    <p class="text-[#4A3728] leading-relaxed">Visa, fiscalité et démarches administratives. Nous préparons votre dossier pour éviter toute mauvaise surprise.</p>
+                </div>
+                <div class="group">
+                    <div class="w-20 h-20 bg-[#F8F5F0] rounded-3xl flex items-center justify-center mx-auto mb-8 group-hover:bg-[#E2D1C3] transition shadow-sm border border-[#E2D1C3]/30">
+                        <i data-lucide="map-pin" class="text-[#2A1F18] w-10 h-10"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">3. Installation</h3>
+                    <p class="text-[#4A3728] leading-relaxed">Accompagnement clé en main sur place. Logement, banque et intégration pour se sentir chez soi immédiatement.</p>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Les 3 étapes simples -->
-    <section id="services" class="py-24 bg-white text-center">
-        <div class="max-w-6xl mx-auto px-6 mb-20">
-            <h2 class="text-4xl font-bold mb-6 text-[#2A1F18]">Une méthode claire pour tous</h2>
-            <p class="text-[#4A3728] text-lg max-w-2xl mx-auto font-light">Parce que partir à l'étranger ne devrait pas être un casse-tête réservé aux experts.</p>
-        </div>
-        <div class="max-w-6xl mx-auto px-6 grid md:grid-cols-3 gap-12">
-            <div class="group">
-                <div class="w-20 h-20 bg-[#F8F5F0] rounded-3xl flex items-center justify-center mx-auto mb-8 group-hover:bg-[#E2D1C3] transition shadow-sm border border-[#E2D1C3]/30">
-                    <i data-lucide="search" class="text-[#2A1F18] w-10 h-10"></i>
-                </div>
-                <h3 class="text-2xl font-bold mb-4">1. Analyse du projet</h3>
-                <p class="text-[#4A3728] leading-relaxed">Nous étudions ensemble vos besoins : budget, famille, travail et style de vie pour sécuriser votre décision.</p>
-            </div>
-            <div class="group">
-                <div class="w-20 h-20 bg-[#F8F5F0] rounded-3xl flex items-center justify-center mx-auto mb-8 group-hover:bg-[#E2D1C3] transition shadow-sm border border-[#E2D1C3]/30">
-                    <i data-lucide="file-check" class="text-[#2A1F18] w-10 h-10"></i>
-                </div>
-                <h3 class="text-2xl font-bold mb-4">2. Organisation</h3>
-                <p class="text-[#4A3728] leading-relaxed">Visa, fiscalité et démarches administratives. Nous préparons votre dossier pour éviter toute mauvaise surprise.</p>
-            </div>
-            <div class="group">
-                <div class="w-20 h-20 bg-[#F8F5F0] rounded-3xl flex items-center justify-center mx-auto mb-8 group-hover:bg-[#E2D1C3] transition shadow-sm border border-[#E2D1C3]/30">
-                    <i data-lucide="map-pin" class="text-[#2A1F18] w-10 h-10"></i>
-                </div>
-                <h3 class="text-2xl font-bold mb-4">3. Installation</h3>
-                <p class="text-[#4A3728] leading-relaxed">Accompagnement clé en main sur place. Logement, banque et intégration pour se sentir chez soi immédiatement.</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- Les Deux Parcours Accessibles -->
-    <section id="parcours" class="py-24 bg-[#F8F5F0]">
-        <div class="max-w-6xl mx-auto px-6">
-            <div class="text-center mb-16">
+        <!-- Parcours -->
+        <section id="parcours" class="py-24 bg-[#F8F5F0]">
+            <div class="max-w-6xl mx-auto px-6 text-center mb-16">
                 <h2 class="text-4xl font-bold mb-4 text-[#2A1F18]">Deux parcours de réussite</h2>
                 <p class="text-[#4A3728]">Choisissez l'accompagnement qui correspond à votre situation actuelle.</p>
             </div>
-            <div class="grid md:grid-cols-2 gap-10">
+            <div class="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-10">
                 <div class="bg-white p-10 rounded-[32px] card-shadow border border-[#E2D1C3]/40 flex flex-col justify-between group hover:border-[#A67D5D] transition-all duration-300">
                     <div>
-                        <div class="w-12 h-12 bg-[#F8F5F0] rounded-xl flex items-center justify-center mb-6 text-[#A67D5D]">
-                            <i data-lucide="compass" class="w-6 h-6"></i>
-                        </div>
+                        <i data-lucide="compass" class="w-12 h-12 text-[#A67D5D] mb-6"></i>
                         <div class="text-[#A67D5D] mb-2 uppercase text-xs font-bold tracking-widest">Parcours 1</div>
                         <h3 class="text-2xl font-bold mb-4 italic">Je cherche ma destination</h3>
                         <p class="text-[#4A3728] mb-8 font-light leading-relaxed">Vous voulez partir mais hésitez sur le pays ? Nous comparons le coût de la vie et les opportunités pour vous.</p>
-                        <ul class="space-y-4 mb-10">
-                            <li class="flex items-center gap-4 text-sm"><i data-lucide="check" class="text-green-700 w-5 h-5"></i> Comparatif des prix</li>
-                            <li class="flex items-center gap-4 text-sm"><i data-lucide="check" class="text-green-700 w-5 h-5"></i> Vérification des visas</li>
-                            <li class="flex items-center gap-4 text-sm"><i data-lucide="check" class="text-green-700 w-5 h-5"></i> Analyse culturelle</li>
-                        </ul>
                     </div>
-                    <button class="w-full py-5 rounded-2xl bg-[#2A1F18] text-white font-bold hover:bg-[#4A3728] transition shadow-lg text-lg">Démarrer la recherche</button>
+                    <button onclick="navigateTo('search')" class="w-full py-5 rounded-2xl bg-[#2A1F18] text-white font-bold hover:bg-[#4A3728] transition shadow-lg text-lg">Démarrer la recherche</button>
                 </div>
                 <div class="bg-white p-10 rounded-[32px] card-shadow border border-[#E2D1C3]/40 flex flex-col justify-between group hover:border-[#A67D5D] transition-all duration-300">
                     <div>
-                        <div class="w-12 h-12 bg-[#F8F5F0] rounded-xl flex items-center justify-center mb-6 text-[#2A1F18]">
-                            <i data-lucide="target" class="w-6 h-6"></i>
-                        </div>
+                        <i data-lucide="target" class="w-12 h-12 text-[#2A1F18] mb-6"></i>
                         <div class="text-[#A67D5D] mb-2 uppercase text-xs font-bold tracking-widest">Parcours 2</div>
                         <h3 class="text-2xl font-bold mb-4 italic">Je sais déjà où je vais</h3>
                         <p class="text-[#4A3728] mb-8 font-light leading-relaxed">Votre destination est fixée ? Nous vous donnons la liste exacte des choses à faire pour une installation sereine.</p>
-                        <ul class="space-y-4 mb-10">
-                            <li class="flex items-center gap-4 text-sm"><i data-lucide="check" class="text-green-700 w-5 h-5"></i> Aide aux dossiers visa</li>
-                            <li class="flex items-center gap-4 text-sm"><i data-lucide="check" class="text-green-700 w-5 h-5"></i> Guide fiscal pays cible</li>
-                            <li class="flex items-center gap-4 text-sm"><i data-lucide="check" class="text-green-700 w-5 h-5"></i> Check-list personnalisée</li>
-                        </ul>
                     </div>
-                    <button class="w-full py-5 rounded-2xl border-2 border-[#2A1F18] text-[#2A1F18] font-bold hover:bg-[#2A1F18] hover:text-white transition text-lg">Organiser mon installation</button>
+                    <!-- Lien Agenda Cal.com -->
+                    <a href="https://cal.com/jules-petrissans-mqtsy8" target="_blank" class="w-full py-5 rounded-2xl border-2 border-[#2A1F18] text-[#2A1F18] font-bold hover:bg-[#2A1F18] hover:text-white transition text-lg text-center inline-block">Organiser mon installation</a>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Section Équipe -->
-    <section id="equipe" class="py-24 bg-white">
-        <div class="max-w-6xl mx-auto px-6">
-            <div class="grid md:grid-cols-2 gap-16 items-center">
-                <div class="order-2 md:order-1">
-                    <div class="team-photo-container rounded-[40px] overflow-hidden group">
-                        <img src="https://i.postimg.cc/g0RN0KX0/Whats-App-Image-2026-01-03-at-16-09-30.jpg" alt="Les Associés Movere Conseil" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" onerror="this.src='https://images.unsplash.com/photo-1543157145-f78c636d023d?q=80&w=1000&auto=format&fit=crop'">
-                        <div class="absolute inset-0 bg-gradient-to-t from-[#2A1F18]/60 to-transparent flex items-end p-8">
-                            <p class="text-white font-bold italic text-lg shadow-sm">Vos partenaires de confiance</p>
-                        </div>
-                    </div>
+        <!-- Équipe -->
+        <section id="equipe" class="py-24 bg-white">
+            <div class="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
+                <div class="team-photo-container rounded-[40px] overflow-hidden group">
+                    <img src="https://i.postimg.cc/g0RN0KX0/Whats-App-Image-2026-01-03-at-16-09-30.jpg" alt="Les Associés Movere Conseil" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" onerror="this.src='https://images.unsplash.com/photo-1543157145-f78c636d023d?q=80&w=1000&auto=format&fit=crop'">
+                    <div class="absolute inset-0 bg-gradient-to-t from-[#2A1F18]/60 to-transparent flex items-end p-8 text-white font-bold italic text-lg shadow-sm">Vos partenaires de confiance</div>
                 </div>
-                <div class="order-1 md:order-2">
-                    <div class="inline-block px-4 py-1 rounded-full bg-[#F8F5F0] text-[#A67D5D] text-xs font-bold mb-6 italic tracking-wider uppercase border border-[#E2D1C3]">LES FONDATEURS</div>
+                <div>
+                    <div class="inline-block px-4 py-1 rounded-full bg-[#F8F5F0] text-[#A67D5D] text-xs font-bold mb-6 italic tracking-wider uppercase border border-[#E2D1C3]">LES ASSOCIÉS</div>
                     <h2 class="text-4xl font-bold mb-8 text-[#2A1F18]">À vos côtés pour ce nouveau chapitre</h2>
-                    <p class="text-[#4A3728] text-lg mb-6 leading-relaxed">
-                        Nous sommes les associés fondateurs de **Movere Conseil**. Notre mission est née d'un constat simple : l'expatriation mérite une structure solide et humaine.
-                    </p>
-                    <p class="text-[#4A3728] mb-8 leading-relaxed font-light">
-                        Nous allions nos expertises pour vous offrir un accompagnement transparent, accessible et sécurisé.
-                    </p>
+                    <p class="text-[#4A3728] text-lg mb-6 leading-relaxed font-light">Parce qu’on sait que s’installer ailleurs ne s’improvise pas, nous sécurisons votre fiscalité et facilitons tout votre quotidien, du compte bancaire au futur logement.</p>
                     <div class="flex gap-4">
                         <div class="p-5 bg-[#F8F5F0] rounded-2xl border border-[#E2D1C3] flex-1">
-                            <p class="text-[#2A1F18] font-bold">Expertise</p>
-                            <p class="text-xs text-[#4A3728]">Mobilité Globale</p>
+                            <p class="text-[#2A1F18] font-bold uppercase text-[10px] mb-1 tracking-wider">Expertise</p>
+                            <p class="text-sm text-[#4A3728]">Accompagnement global, fiscalités étrangères</p>
                         </div>
                         <div class="p-5 bg-[#F8F5F0] rounded-2xl border border-[#E2D1C3] flex-1">
-                            <p class="text-[#2A1F18] font-bold">Valeur</p>
-                            <p class="text-xs text-[#4A3728]">Transparence totale</p>
+                            <p class="text-[#2A1F18] font-bold uppercase text-[10px] mb-1 tracking-wider">Valeur</p>
+                            <p class="text-sm text-[#4A3728]">Transparence totale & proximité humaine</p>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Newsletter Section -->
-    <section id="contact" class="py-24 bg-[#2A1F18] text-[#F8F5F0] relative overflow-hidden">
-        <div class="max-w-6xl mx-auto px-6 relative z-10">
-            <div class="text-center mb-16">
-                <div class="inline-block p-3 bg-[#A67D5D]/20 rounded-2xl mb-6">
-                    <i data-lucide="mail" class="text-[#A67D5D] w-10 h-10"></i>
+        <!-- Expertise Fiscale -->
+        <section id="fiscalite" class="py-24 bg-[#F8F5F0]">
+            <div class="max-w-4xl mx-auto px-6">
+                <div class="text-center mb-16">
+                    <div class="inline-block px-4 py-1 rounded-full bg-white text-[#A67D5D] text-xs font-bold mb-6 uppercase border border-[#E2D1C3]">Tribune Expertise</div>
+                    <h2 class="text-4xl font-bold mb-8 text-[#2A1F18]">La Fiscalité : Le Pilier de votre Expatriation</h2>
+                    <p class="text-xl text-[#4A3728] font-light leading-relaxed italic">"Réussir son installation à l'étranger, c'est avant tout maîtriser les règles du jeu fiscal."</p>
                 </div>
-                <h2 class="text-4xl md:text-5xl font-bold mb-4 text-[#E2D1C3]">Newsletter mensuelle</h2>
-                <h3 class="text-2xl font-semibold mb-8 text-[#E2D1C3]">Un pays, chaque mois</h3>
-                <p class="text-[#E2D1C3]/80 text-lg max-w-3xl mx-auto font-light leading-relaxed">
-                    Inscrivez-vous à notre newsletter exclusive et recevez chaque mois une analyse complète d'un pays.
-                </p>
-            </div>
-            
-            <div class="grid md:grid-cols-3 gap-8 mb-20">
-                <div class="bg-white/5 border border-white/10 p-8 rounded-[32px] backdrop-blur-sm hover:border-[#A67D5D] transition-colors duration-300 text-center">
-                    <div class="w-12 h-12 bg-[#A67D5D] rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-[#A67D5D]/20 mx-auto">
-                        <i data-lucide="map" class="text-white w-6 h-6"></i>
+                <div class="bg-white p-8 md:p-12 rounded-[40px] shadow-sm border border-[#E2D1C3]/40 space-y-10 text-[#4A3728] leading-relaxed text-lg">
+                    <div class="article-card">
+                        <h3 class="text-2xl font-bold text-[#2A1F18] mb-4">Les Conventions Fiscales : Votre Bouclier International</h3>
+                        <p class="font-light">Contrairement aux idées reçues, changer de pays ne signifie pas couper tout lien fiscal avec la France. Sans une application stricte des conventions fiscales bilatérales, vous vous exposez au risque majeur de la double imposition. Notre rôle est d'analyser les critères de résidence selon le modèle de l'OCDE.</p>
                     </div>
-                    <h4 class="text-xl font-bold mb-3 text-white">Un pays par mois</h4>
-                    <p class="text-[#E2D1C3]/70 text-sm leading-relaxed">Découvrez une destination en profondeur chaque mois.</p>
-                </div>
-                
-                <div class="bg-white/5 border border-white/10 p-8 rounded-[32px] backdrop-blur-sm hover:border-[#A67D5D] transition-colors duration-300 text-center">
-                    <div class="w-12 h-12 bg-[#A67D5D] rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-[#A67D5D]/20 mx-auto">
-                        <i data-lucide="bar-chart-3" class="text-white w-6 h-6"></i>
+                    <div class="article-card">
+                        <h3 class="text-2xl font-bold text-[#2A1F18] mb-4">L'Exit Tax : Anticiper pour ne pas subir</h3>
+                        <p class="font-light">Pour les contribuables détenant des participations significatives ou un patrimoine mobilier important, le départ de France déclenche le mécanisme de l'Exit Tax. Cette mesure vise à imposer les plus-values latentes au moment du transfert de résidence fiscale.</p>
                     </div>
-                    <h4 class="text-xl font-bold mb-3 text-white">Analyse complète</h4>
-                    <p class="text-[#E2D1C3]/70 text-sm leading-relaxed">Avantages, inconvénients et opportunités détaillés.</p>
-                </div>
-                
-                <div class="bg-white/5 border border-white/10 p-8 rounded-[32px] backdrop-blur-sm hover:border-[#A67D5D] transition-colors duration-300 text-center">
-                    <div class="w-12 h-12 bg-[#A67D5D] rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-[#A67D5D]/20 mx-auto">
-                        <i data-lucide="sparkles" class="text-white w-6 h-6"></i>
+                    <div class="article-card">
+                        <h3 class="text-2xl font-bold text-[#2A1F18] mb-4">Pourquoi être avisé est crucial ?</h3>
+                        <p class="font-light">L'expatriation est un levier de croissance patrimoniale exceptionnel, mais elle requiert une vision globale. Nous transformons la complexité juridique en opportunité de structuration sereine.</p>
                     </div>
-                    <h4 class="text-xl font-bold mb-3 text-white">Conseils exclusifs</h4>
-                    <p class="text-[#E2D1C3]/70 text-sm leading-relaxed">Tips de nos experts expatriés.</p>
                 </div>
             </div>
+        </section>
 
-            <form id="newsletter-form" class="flex flex-col sm:flex-row gap-4 max-w-2xl mx-auto bg-white/5 p-2 rounded-[24px] border border-white/10 backdrop-blur-md">
-                <input type="email" required placeholder="Votre adresse email" class="flex-1 bg-transparent px-6 py-4 rounded-[18px] text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#A67D5D]/50 text-lg">
-                <button type="submit" class="bg-[#A67D5D] text-white px-10 py-4 rounded-[18px] font-bold hover:bg-[#8B5E3C] transition-all shadow-lg active:scale-95 whitespace-nowrap text-lg">
-                    S'abonner
+        <!-- Contact Page -->
+        <section id="contact-page" class="py-24 bg-white border-t border-[#E2D1C3]/30">
+            <div class="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-16">
+                <div>
+                    <h2 class="text-4xl font-bold mb-6 text-[#2A1F18]">Échangeons sur votre projet</h2>
+                    <p class="text-[#4A3728] text-lg mb-10 font-light leading-relaxed">Chaque expatriation est unique. Contactez-nous pour une première analyse gratuite de votre situation et découvrez notre accompagnement sur mesure.</p>
+                    <div class="space-y-6">
+                        <div class="flex items-center gap-4 text-sm font-semibold uppercase tracking-widest text-[#A67D5D]">
+                            <i data-lucide="mail"></i> movere.conseil@gmail.com
+                        </div>
+                        <div class="flex items-center gap-4 text-sm font-semibold uppercase tracking-widest text-[#A67D5D]">
+                            <i data-lucide="calendar"></i> Sur rendez-vous uniquement
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-[#F8F5F0] p-8 rounded-[32px] border border-[#E2D1C3]">
+                    <form id="main-contact-form" class="space-y-6">
+                        <div class="grid grid-cols-2 gap-4">
+                            <input type="text" placeholder="Prénom" class="contact-input" required>
+                            <input type="text" placeholder="Nom" class="contact-input" required>
+                        </div>
+                        <input type="email" placeholder="Email" class="contact-input" required>
+                        <textarea placeholder="Votre message..." rows="4" class="contact-input resize-none" required></textarea>
+                        <button type="submit" class="w-full bg-[#2A1F18] text-white py-4 rounded-xl font-bold hover:bg-[#4A3728] transition shadow-lg">Envoyer ma demande</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- PAGE RECHERCHE (VIERGE) -->
+    <div id="page-search" class="page pt-32 pb-24 min-h-screen bg-white">
+        <div class="max-w-4xl mx-auto px-6">
+            <div class="mb-12">
+                <button onclick="navigateTo('home')" class="flex items-center gap-2 text-sm text-[#A67D5D] hover:underline mb-8">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i> Retour à l'accueil
                 </button>
-            </form>
-            <p class="mt-8 text-center text-xs text-[#E2D1C3]/40 italic">Désinscription possible à tout moment.</p>
+                <h2 class="text-4xl font-bold text-[#2A1F18] mb-4">Espace de Recherche Personnalisé</h2>
+                <p class="text-[#4A3728] text-lg font-light italic">Cet espace est prêt pour accueillir votre stratégie d'expatriation.</p>
+            </div>
+
+            <!-- Espace vierge de travail avec assistant IA -->
+            <div class="bg-[#F8F5F0] p-10 rounded-[40px] border-2 border-dashed border-[#E2D1C3] min-h-[400px] flex flex-col items-center justify-center text-center">
+                <div class="w-16 h-16 bg-[#A67D5D]/10 rounded-full flex items-center justify-center mb-6">
+                    <i data-lucide="construction" class="text-[#A67D5D] w-8 h-8"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-[#2A1F18] mb-2">Espace en cours de création</h3>
+                <p class="text-[#4A3728] max-w-md">Nous allons bâtir ici vos outils de comparaison et votre dossier d'installation.</p>
+                
+                <div class="mt-12 w-full max-w-2xl bg-white p-6 rounded-3xl shadow-sm border border-[#E2D1C3]/30">
+                    <label class="block text-xs font-bold uppercase mb-4 text-[#A67D5D]">Posez une question à notre IA experte</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="ai-query" class="flex-1 bg-[#F8F5F0] p-4 rounded-xl outline-none focus:ring-2 focus:ring-[#A67D5D]/30" placeholder="Ex: Avantages fiscaux au Portugal ?">
+                        <button onclick="askAI()" id="ai-btn" class="bg-[#2A1F18] text-white p-4 rounded-xl hover:bg-[#4A3728] transition shadow-md">
+                            <i data-lucide="sparkles" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                    <div id="ai-response" class="hidden mt-6 p-6 bg-[#F8F5F0] rounded-2xl text-sm leading-relaxed whitespace-pre-wrap italic font-light text-[#4A3728]"></div>
+                </div>
+            </div>
         </div>
-        
-        <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-[#A67D5D]/10 rounded-full blur-[120px]"></div>
+    </div>
+
+    <!-- Newsletter -->
+    <section id="newsletter" class="py-32 bg-[#2A1F18] text-[#F8F5F0] relative overflow-hidden">
+        <div class="max-w-6xl mx-auto px-6 relative z-10 text-center">
+            <h2 class="text-5xl font-bold mb-6 text-[#E2D1C3]">Newsletter mensuelle</h2>
+            <p class="text-[#E2D1C3]/80 text-xl max-w-4xl mx-auto mb-16 font-light leading-relaxed">
+                Inscrivez-vous à notre newsletter exclusive et recevez chaque mois une analyse complète d'un pays.
+            </p>
+            <form id="newsletter-form" class="flex flex-col sm:flex-row gap-6 max-w-3xl mx-auto bg-white/5 p-3 rounded-[32px] border border-white/10">
+                <input type="email" placeholder="Votre email" class="flex-1 bg-transparent px-8 py-5 rounded-[24px] text-white text-lg outline-none placeholder-white/30" required>
+                <button type="submit" class="bg-[#A67D5D] text-white px-12 py-5 rounded-[24px] font-bold hover:bg-[#8B5E3C] transition-all text-xl shadow-lg">S'abonner</button>
+            </form>
+        </div>
+        <div class="absolute -bottom-24 -right-24 w-[500px] h-[500px] bg-[#A67D5D]/10 rounded-full blur-[120px]"></div>
     </section>
 
     <!-- Footer -->
-    <footer class="bg-white py-16 border-t border-[#E2D1C3]/40">
-        <div class="max-w-6xl mx-auto px-6">
-            <div class="flex flex-col md:flex-row justify-between items-center gap-10">
-                <div class="flex items-center gap-4">
-                    <img src="https://i.postimg.cc/2y41bVdJ/Whats-App-Image-2026-01-03-at-16-09-30.jpg" alt="Logo Movere Conseil" class="h-12 w-auto rounded shadow-sm">
-                    <span class="text-lg font-bold text-[#2A1F18]">MOVERE CONSEIL</span>
-                </div>
-                <div class="flex flex-wrap justify-center gap-8 text-sm font-medium text-[#4A3728]">
-                    <a href="javascript:void(0)" onclick="openModal('modal-mentions')" class="hover:text-[#A67D5D] transition underline underline-offset-4 decoration-[#E2D1C3]">Mentions Légales</a>
-                    <a href="javascript:void(0)" onclick="openModal('modal-rgpd')" class="hover:text-[#A67D5D] transition underline underline-offset-4 decoration-[#E2D1C3]">Politique RGPD</a>
-                    <a href="mailto:contact@movereconseil.com" class="hover:text-[#A67D5D] transition">Contact</a>
-                </div>
+    <footer class="bg-white py-32 border-t border-[#E2D1C3]/40">
+        <div class="max-w-6xl mx-auto px-6 grid md:grid-cols-5 gap-16 mb-20 text-sm text-[#4A3728]">
+            <div class="col-span-1">
+                <h5 class="font-bold text-[#2A1F18] mb-8 uppercase text-xs tracking-widest">MOVERE CONSEIL</h5>
+                <p class="font-light italic leading-relaxed text-base">Conseil stratégique en expatriation. Penser votre départ, structurer votre patrimoine et s'installer sereinement.</p>
             </div>
-            <div class="mt-12 pt-8 border-t border-[#F8F5F0] text-center text-xs text-[#4A3728]/60 italic">
-                Movere Conseil - Penser, structurer, s'installer. © 2024 Tous droits réservés.
+            <div>
+                <h5 class="font-bold text-[#2A1F18] mb-8 uppercase text-xs tracking-widest">Expertises</h5>
+                <ul class="space-y-4 text-base">
+                    <li>Analyse de destination</li>
+                    <li>Aide aux Visas</li>
+                    <li>Fiscalité</li>
+                </ul>
+            </div>
+            <div>
+                <h5 class="font-bold text-[#2A1F18] mb-8 uppercase text-xs tracking-widest">Société</h5>
+                <ul class="space-y-4 text-base">
+                    <li><a href="javascript:void(0)" onclick="navigateTo('home')" class="hover:text-[#A67D5D] transition">L'équipe</a></li>
+                    <li><a href="#contact-page" onclick="navigateTo('home')" class="hover:text-[#A67D5D] transition">Nous contacter</a></li>
+                </ul>
+            </div>
+            <div>
+                <h5 class="font-bold text-[#2A1F18] mb-8 uppercase text-xs tracking-widest">Informations</h5>
+                <ul class="space-y-4 text-base">
+                    <li><a href="javascript:void(0)" onclick="openModal('modal-mentions')" class="underline decoration-[#E2D1C3] hover:text-[#A67D5D] transition">Mentions Légales</a></li>
+                    <li><a href="javascript:void(0)" onclick="openModal('modal-rgpd')" class="underline decoration-[#E2D1C3] hover:text-[#A67D5D] transition">Protection des Données</a></li>
+                    <li><a href="mailto:movere.conseil@gmail.com" class="hover:text-[#A67D5D] transition underline decoration-[#E2D1C3]">movere.conseil@gmail.com</a></li>
+                </ul>
+            </div>
+            <div>
+                <h5 class="font-bold text-[#2A1F18] mb-8 uppercase text-xs tracking-widest">Suivez-nous</h5>
+                <div class="flex gap-6 mt-6">
+                    <a href="#" class="w-12 h-12 flex items-center justify-center rounded-2xl bg-[#F8F5F0] text-[#2A1F18] hover:bg-[#A67D5D] hover:text-white transition shadow-sm"><i data-lucide="youtube" class="w-6 h-6"></i></a>
+                    <a href="#" class="w-12 h-12 flex items-center justify-center rounded-2xl bg-[#F8F5F0] text-[#2A1F18] hover:bg-[#A67D5D] hover:text-white transition shadow-sm">
+                        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.28-2.26.74-4.63 2.58-5.91 1.49-1.02 3.38-1.35 5.17-.95.01 1.39.01 2.78.01 4.18-1.04-.32-2.2-.18-3.08.47-.63.45-1.04 1.18-1.11 1.96-.06 1.01.44 2.03 1.28 2.57.81.56 1.86.68 2.81.39.93-.24 1.71-.97 1.97-1.89.06-.23.08-.47.08-.71.01-4.04 0-8.07.01-12.11z"/></svg>
+                    </a>
+                    <a href="#" class="w-12 h-12 flex items-center justify-center rounded-2xl bg-[#F8F5F0] text-[#2A1F18] hover:bg-[#A67D5D] hover:text-white transition shadow-sm"><i data-lucide="instagram" class="w-6 h-6"></i></a>
+                </div>
             </div>
         </div>
+        <div class="text-center pt-12 border-t border-[#F8F5F0] text-sm opacity-50 font-light">© 2024 Movere Conseil. Tous droits réservés.</div>
     </footer>
 
     <!-- Modals -->
-    <div id="modal-mentions" class="modal">
-        <div class="modal-content shadow-2xl">
-            <div class="flex justify-between items-center mb-8">
-                <h2 class="text-3xl font-bold italic">Mentions Légales</h2>
-                <button onclick="closeModal('modal-mentions')" class="text-[#2A1F18] hover:text-[#A67D5D] p-2 rounded-full hover:bg-slate-100"><i data-lucide="x"></i></button>
-            </div>
-            <div class="space-y-6 text-[#4A3728] leading-relaxed">
-                <p><strong>Éditeur :</strong> Movere Conseil, société en formation.</p>
-                <p><strong>Hébergement :</strong> Prestataire professionnel européen.</p>
-                <p><strong>Propriété :</strong> L'ensemble de ce site relève de la législation française.</p>
-            </div>
-        </div>
-    </div>
-
-    <div id="modal-rgpd" class="modal">
-        <div class="modal-content shadow-2xl">
-            <div class="flex justify-between items-center mb-8">
-                <h2 class="text-3xl font-bold italic">Politique RGPD</h2>
-                <button onclick="closeModal('modal-rgpd')" class="text-[#2A1F18] hover:text-[#A67D5D] p-2 rounded-full hover:bg-slate-100"><i data-lucide="x"></i></button>
-            </div>
-            <div class="space-y-6 text-[#4A3728] leading-relaxed">
-                <p><strong>Responsable :</strong> Movere Conseil.</p>
-                <p><strong>Données :</strong> Uniquement votre email pour la newsletter.</p>
-            </div>
-        </div>
-    </div>
+    <div id="modal-mentions" class="modal"><div class="modal-content shadow-2xl"><h2 class="text-3xl font-bold mb-8">Mentions Légales</h2><div class="space-y-4 text-sm text-[#4A3728]"><strong>Dénomination :</strong> Movere Conseil S.A.S.<br><strong>Siège :</strong> France.<br><strong>E-mail :</strong> movere.conseil@gmail.com</div><button onclick="closeModal('modal-mentions')" class="mt-8 bg-[#2A1F18] text-white px-8 py-3 rounded-xl font-bold transition hover:bg-[#4A3728]">Fermer</button></div></div>
+    <div id="modal-rgpd" class="modal"><div class="modal-content shadow-2xl"><h2 class="text-3xl font-bold mb-8">Protection des Données</h2><p class="text-sm text-[#4A3728]">Movere Conseil collecte vos données uniquement pour répondre à vos demandes ou envoyer la newsletter. Confidentialité garantie.</p><button onclick="closeModal('modal-rgpd')" class="mt-8 bg-[#2A1F18] text-white px-8 py-3 rounded-xl font-bold transition hover:bg-[#4A3728]">Fermer</button></div></div>
 
     <script>
         lucide.createIcons();
-        
-        function openModal(id) { 
-            const m = document.getElementById(id);
-            if(m) {
-                m.style.display = "block"; 
-                document.body.style.overflow = "hidden";
-            }
-        }
-        function closeModal(id) { 
-            const m = document.getElementById(id);
-            if(m) {
-                m.style.display = "none"; 
-                document.body.style.overflow = "auto";
-            }
-        }
-        
-        window.onclick = function(e) { 
-            if (e.target.classList && e.target.classList.contains('modal')) {
-                e.target.style.display = "none";
-                document.body.style.overflow = "auto";
-            }
-        };
 
-        const form = document.getElementById('newsletter-form');
-        if (form) {
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const btn = this.querySelector('button');
-                const input = this.querySelector('input');
-                btn.textContent = "Bienvenue !";
-                btn.style.backgroundColor = "#15803d";
-                input.value = "";
-                input.disabled = true;
-                input.placeholder = "Inscription réussie !";
-            });
+        // ROUTER SIMPLE
+        function navigateTo(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('page-' + pageId).classList.add('active');
+            window.scrollTo(0, 0);
         }
+
+        // MODALS
+        function openModal(id) { document.getElementById(id).style.display = "block"; document.body.style.overflow = "hidden"; }
+        function closeModal(id) { document.getElementById(id).style.display = "none"; document.body.style.overflow = "auto"; }
+
+        // API GEMINI CONFIG
+        const apiKey = ""; 
+
+        async function askAI() {
+            const queryInput = document.getElementById('ai-query');
+            const btn = document.getElementById('ai-btn');
+            const responseDiv = document.getElementById('ai-response');
+            const query = queryInput.value.trim();
+
+            if (!query) return;
+
+            btn.disabled = true;
+            btn.innerHTML = '<i data-lucide="loader" class="animate-spin w-5 h-5"></i>';
+            lucide.createIcons();
+            responseDiv.classList.remove('hidden');
+            responseDiv.textContent = "Analyse experte en cours...";
+            responseDiv.classList.add('loading-dots');
+
+            const systemPrompt = "Tu es un expert chez Movere Conseil. Réponds avec professionnalisme aux questions d'expatriation. Rappelle toujours de consulter nos associés pour un audit final.";
+
+            try {
+                const response = await callGemini(query, systemPrompt);
+                responseDiv.classList.remove('loading-dots');
+                responseDiv.textContent = response;
+            } catch (error) {
+                responseDiv.classList.remove('loading-dots');
+                responseDiv.textContent = "Erreur de connexion avec l'IA. Veuillez réessayer.";
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i data-lucide="sparkles" class="w-5 h-5"></i>';
+                lucide.createIcons();
+            }
+        }
+
+        async function callGemini(userQuery, systemInstruction, retries = 5, delay = 1000) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                systemInstruction: { parts: [{ text: systemInstruction }] }
+            };
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                    if (!response.ok) throw new Error();
+                    const result = await response.json();
+                    return result.candidates?.[0]?.content?.parts?.[0]?.text || "Aucune réponse.";
+                } catch (error) {
+                    if (i === retries - 1) throw error;
+                    await new Promise(res => setTimeout(res, delay));
+                    delay *= 2;
+                }
+            }
+        }
+
+        // FORMULAIRES
+        document.getElementById('main-contact-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const b = this.querySelector('button');
+            b.textContent = "Envoyé !";
+            b.style.backgroundColor = "#15803d";
+            this.reset();
+        });
     </script>
 </body>
 </html>
